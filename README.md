@@ -4,6 +4,9 @@
     <kbd>
         <img src="results/tonks_scary_sneeze.png" height=300 />
     </kbd>
+    <kbd>
+        <img src="results/goober_lounging.jpg" height=300 />
+    </kbd>
 </p>
 
 This repo is a comparison between R & Python for applying the
@@ -299,6 +302,9 @@ print(pred_df)
 ```
 
 <p align="center">
+    <kbd>
+        <img src="results/tonks_scary_sneeze.png" height=300 />
+    </kbd>
     <kbd>
         <img src="results/goober_lounging.jpg" height=300 />
     </kbd>
