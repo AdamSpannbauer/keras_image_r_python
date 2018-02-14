@@ -7,17 +7,35 @@ output: html_document
 
 # TODO: ADD COMMENTARY
 
+This post is a comparison between R & Python for applying the [pretrained imagenet VGG19 model](https://keras.io/applications/#vgg19) shipped with [`keras`](https://keras.io/).
+
+****
+
+The comparison for using the `keras` model across the 2 languages will be addressing the classic image classification problem of cats vs dogs.  The scripts have been written to follow a similiar framework & order.  
+
+In this post the steps of the process have been broken up to for piecewise comparison; if you'd like to view either of the 2 full scripts you can find them here: [R](https://github.com/AdamSpannbauer/keras_image_r_python/blob/master/keras_vgg19_cat_dog.R) & [Python](https://github.com/AdamSpannbauer/keras_image_r_python/blob/master/keras_vgg19_cat_dog.py).
+
+*Please note: Although this is an 'R v Python comparison' the R `keras` library sits on top of a python process under the covers.  So the comparison is just concerning the interface and syntax.*
+
+That's enough prefacing; let's start classifying pets.
+
 ## Libraries & Modules
 
-### R
+The first step to our scripts will be to load up our resources.
 
-```{r libraryload}
+##### R
+
+The `keras` R library covers all our needs for this script; the base R library will cover the rest of needs.
+
+```{r libraryload, eval=FALSE}
 library(keras)
 ```
 
-### Python
+##### Python
 
-```{python moduleload}
+In python we'll load up `glob` for loading up image paths, `numpy` for some work with arrays, `pandas` to convert our output to a DataFrame (this isn't needed, but is used to match the R output for more direct comparison), & `keras` (& we pull out some specific functions to call directly).
+
+```{python moduleload, eval=FALSE}
 import glob
 import numpy as np
 import pandas as pd
@@ -28,15 +46,24 @@ from keras.applications.imagenet_utils import preprocess_input, decode_predictio
 
 ## Helper Functions
 
-### R
+Next we'll define some functions to aid in the classification.  
 
-```{r helperfuncs}
+In both languages we'll define a function to preprocess the images and class labels.
+
+The pretrained model we're using expects a certain image size & input tensor.  The `image_preprocessor` functions across the 2 languages are written almost entirely with `keras` functions, so they are very similar.  The R version could be written with pipes (`%>%`) if preferred, but I left them out to highlight the similiarity between the 2 languages.
+
+The next helper function written is to read in imagenet labels.  Imagenet doesn't have a 'cat' or 'dog' class but rather it has breeds of cats and dogs for labels.  I have pasted the breed labels for the 2 animals into files that can be found [here](https://github.com/AdamSpannbauer/keras_image_r_python/tree/master/data).  The `read_dog_cat_labels` function is a utility to read in these label files and convert the contents to the format that will be outputted by our model.  Once our classifications are made, we'll use the lists created by this helper function to slap a simple 'cat' or 'dog' label if it's one of the known breeds.
+
+##### R
+
+```{r helperfuncs, eval=FALSE}
 # define image preprocessor for use with keras vgg19
 image_preprocessor = function(image_path) {
-  image_load(image_path, target_size = c(224,224)) %>% 
-    image_to_array() %>% 
-    array_reshape(c(1, dim(.))) %>% 
-    imagenet_preprocess_input()
+  image = image_load(image_path, target_size = c(224,224))
+  image = image_to_array(image)
+  image = array_reshape(image, c(1, dim(image)))
+  image = imagenet_preprocess_input(image)
+  return(image)
 }
 
 #function to read in files housing all cat/dog breeds in imagenet labels
@@ -48,9 +75,9 @@ read_dog_cat_labels = function(path) {
 }
 ```
 
-### Python
+##### Python
 
-```{python helperfuncspy}
+```{python helperfuncspy, eval=FALSE}
 # define image preprocessor for use with keras vgg19
 def image_preprocessor(image_path):
     image = image_utils.load_img(image_path, target_size=(224, 224))
@@ -69,9 +96,11 @@ def read_dog_cat_labels(path):
 
 ## Read and Process Images
 
-### R
+Before we can classify the images we'll have to read them into memory and preprocess them into a format that our model understands; luckily we just wrote some functions to do that for us, all we need to do is apply them.  Below in both languages we create a list of file paths for our images, and then apply our `image_preprocessor` functions to each file path.  After these chunks we have a list of image objects ready to be classified by our model.
 
-```{r readimages}
+##### R
+
+```{r readimages, eval=FALSE}
 # define image paths to classify
 image_paths = list.files('images', recursive = TRUE, full.names = TRUE)
 
@@ -79,23 +108,29 @@ image_paths = list.files('images', recursive = TRUE, full.names = TRUE)
 image_list = lapply(image_paths, image_preprocessor)
 ```
 
-### Python
+##### Python
 
-```{python readimagespy}
+```{python readimagespy, eval=FALSE}
 # define image paths to classify
-image_files = glob.glob('images/*/*')
+image_paths = glob.glob('images/*/*')
 
 # preprocess images
-image_list = [image_preprocessor(path) for path in image_files]
+image_list = [image_preprocessor(path) for path in image_paths]
 ```
 
 ## Load Model and Classify
 
-### R
+With our input ready to go we can load the pretrained model, and apply it to our images.  Sticking with the recurring theme of this write up, the model load step is similiar across the 2 languages.
 
-```{r predict}
+With our model loaded we use the different syntaxes of R and python to produce predictions given a list of images.  In R we use `lapply` to iterate over our `image_list` while in python we use list comprehensions.
+
+In addition to generating our predictions, we also apply provided functions to decode the predictions and give us the human readable labels.
+
+##### R
+
+```{r predict, eval=FALSE}
 # load vgg19 model pretrained with imagenet
-model = application_vgg19()
+model = application_vgg19(weights = 'imagenet')
 
 # get model prediction
 preds = lapply(image_list, function(i) {
@@ -103,23 +138,26 @@ preds = lapply(image_list, function(i) {
 })
 ```
 
-### Python
+##### Python
 
-```{python predictpy}
+```{python predictpy, eval=FALSE}
 # load vgg19 model pretrained with imagenet
-model = keras.applications.VGG19(weights='imagenet')
+model = keras.applications.VGG19(weights = 'imagenet')
 
 # get model predictions
 preds = [model.predict(image) for image in image_list]
 preds = [list(decode_predictions(pred, top=1)[0][0]) for pred in preds]
 ```
 
-
 ## Pretty-up Results
 
-### R
+Coming into this last step we have our classification results in each language's version of a `list`.  In R we have a list of `data.frame`s & in python we have coerced our output to be a list of lists.
 
-```{r df}
+In these last chunks we're going to add in the coverall classes of 'cat' & 'dog' when we see one of the breeds listed in our label files, and we'll convert the outputs to be housed in similar tables for easy comparison.
+
+##### R
+
+```{r df, eval=FALSE}
 # convert list of predictions to df and drop class name column
 pred_df = do.call(rbind, preds)
 pred_df$class_name = NULL
@@ -138,16 +176,15 @@ pred_df$file_name = unlist(image_paths)
 pred_df = pred_df[order(-pred_df$score),]
 ```
 
-### Python
+##### Python
 
-```{python dfpy}
+```{python dfpy, eval=FALSE}
 # convert list of predictions to df and drop class name column
 pred_df = pd.DataFrame(preds)
 pred_df = pred_df.drop(0, 1)
 
 #make names match names in R output for consistency
 pred_df.columns = ['class_description', 'score']
-#------------------------------------------------
 
 #read in breed labels
 dog_labs = read_dog_cat_labels('data/dog_classes.txt')
