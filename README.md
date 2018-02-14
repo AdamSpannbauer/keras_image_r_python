@@ -297,3 +297,10 @@ print(pred_df)
 # 2              lynx  0.147593    Cat             images/cats/lilly_perch.jpg
 # 0             boxer  0.107166    Dog              images/dogs/tonks_beer.jpg
 ```
+
+<p align="center">
+    <kbd>
+        <img src="results/goober_lounging.jpg" height=300 />
+    </kbd>
+</p>
+
