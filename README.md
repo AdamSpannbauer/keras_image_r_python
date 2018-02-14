@@ -1,5 +1,11 @@
 # Image Classification with Keras - R & Python
 
+<p align="center">
+    <kbd>
+        <img src="results/tonks_scary_sneeze.png" height=300 />
+    </kbd>
+</p>
+
 This repo is a comparison between R & Python for applying the
 [pretrained imagenet VGG19 model](https://keras.io/applications/#vgg19)
 shipped with [`keras`](https://keras.io/).
