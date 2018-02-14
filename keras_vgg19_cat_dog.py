@@ -74,12 +74,11 @@ pred_df = pred_df.sort_values('score', ascending=False)
 #####################
 print(pred_df)
 
-#   class_description     score catdog                                    file_name 
-# 1         Chihuahua  0.942092    Dog          images/dogs/tonks_proposal_sign.jpg 
-# 0         Chihuahua  0.785131    Dog   images/dogs/tonks_jasper_announce_sign.jpg 
-# 2          malinois  0.580209    Dog          images/dogs/tonks_announce_sign.jpg 
-# 6             tabby  0.477750    Cat             images/cats/google_tabby_cat.jpg 
-# 4      Egyptian_cat  0.449422    Cat              images/cats/goober_lounging.jpg 
-# 5    Scotch_terrier  0.303835    Dog         images/cats/jasper_announce_sign.jpg 
-# 3              lynx  0.147593    Cat                  images/cats/lilly_perch.jpg 
+#   class_description     score catdog                               file_name
+# 1         Chihuahua  0.777919    Dog      images/dogs/tonks_scary_sneeze.png
+# 4             tabby  0.477750    Cat        images/cats/google_tabby_cat.jpg
+# 3      Egyptian_cat  0.449422    Cat         images/cats/goober_lounging.jpg
+# 5              chow  0.278078    Dog  images/ambiguous/tonks_jasper_bone.jpg
+# 2              lynx  0.147593    Cat             images/cats/lilly_perch.jpg
+# 0             boxer  0.107166    Dog              images/dogs/tonks_beer.jpg
 #------------------------------------------------

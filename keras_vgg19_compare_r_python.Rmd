@@ -2,8 +2,12 @@
 title: "Image Classification with Keras - R & Python"
 author: "Adam Spannbauer"
 date: "2/13/2018"
-output: html_document
+output: md_document
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval = FALSE)
+```
 
 # TODO: ADD COMMENTARY
 
@@ -35,7 +39,7 @@ library(keras)
 
 In python we'll load up `glob` for loading up image paths, `numpy` for some work with arrays, `pandas` to convert our output to a DataFrame (this isn't needed, but is used to match the R output for more direct comparison), & `keras` (& we pull out some specific functions to call directly).
 
-```{python moduleload, eval=FALSE}
+```{r moduleload, eval=FALSE}
 import glob
 import numpy as np
 import pandas as pd
@@ -77,7 +81,7 @@ read_dog_cat_labels = function(path) {
 
 ##### Python
 
-```{python helperfuncspy, eval=FALSE}
+```{r helperfuncspy, eval=FALSE}
 # define image preprocessor for use with keras vgg19
 def image_preprocessor(image_path):
     image = image_utils.load_img(image_path, target_size=(224, 224))
@@ -110,7 +114,7 @@ image_list = lapply(image_paths, image_preprocessor)
 
 ##### Python
 
-```{python readimagespy, eval=FALSE}
+```{r readimagespy, eval=FALSE}
 # define image paths to classify
 image_paths = glob.glob('images/*/*')
 
@@ -140,7 +144,7 @@ preds = lapply(image_list, function(i) {
 
 ##### Python
 
-```{python predictpy, eval=FALSE}
+```{r predictpy, eval=FALSE}
 # load vgg19 model pretrained with imagenet
 model = keras.applications.VGG19(weights = 'imagenet')
 
@@ -178,7 +182,7 @@ pred_df = pred_df[order(-pred_df$score),]
 
 ##### Python
 
-```{python dfpy, eval=FALSE}
+```{r dfpy, eval=FALSE}
 # convert list of predictions to df and drop class name column
 pred_df = pd.DataFrame(preds)
 pred_df = pred_df.drop(0, 1)
@@ -200,3 +204,38 @@ pred_df['file_name'] = image_files
 pred_df = pred_df.sort_values('score', ascending=False)
 ```
 
+## View Output
+
+When we view our output we see that everything went well in both processes and we have the same exact output (apart from rounding in the different print methods).  
+
+One thing you'll notice is that we don't have very high confidence for most predictions, this is because we've undermined the actual classification by balling up all cat/dog breeds.  The score relates to how confident the model was in predicting a certain bree.  If we trained a classic cat/dog model we should see an increase in these scores.
+
+If you want to view all 7 images relating to this output you can view them [here](https://github.com/AdamSpannbauer/keras_image_r_python/tree/master/results).
+
+##### R
+
+```{r}
+print(pred_df)
+
+#   class_description     score catdog                              file_name
+# 6         Chihuahua 0.7779192    Dog     images/dogs/tonks_scary_sneeze.png
+# 3             tabby 0.4777499    Cat       images/cats/google_tabby_cat.jpg
+# 2      Egyptian_cat 0.4494216    Cat        images/cats/goober_lounging.jpg
+# 1              chow 0.2780781    Dog images/ambiguous/tonks_jasper_bone.jpg
+# 4              lynx 0.1475925    Cat            images/cats/lilly_perch.jpg
+# 5             boxer 0.1071659    Dog             images/dogs/tonks_beer.jpg
+```
+
+##### Python
+
+```{r eval=FALSE}
+print(pred_df)
+
+#   class_description     score catdog                               file_name
+# 1         Chihuahua  0.777919    Dog      images/dogs/tonks_scary_sneeze.png
+# 4             tabby  0.477750    Cat        images/cats/google_tabby_cat.jpg
+# 3      Egyptian_cat  0.449422    Cat         images/cats/goober_lounging.jpg
+# 5              chow  0.278078    Dog  images/ambiguous/tonks_jasper_bone.jpg
+# 2              lynx  0.147593    Cat             images/cats/lilly_perch.jpg
+# 0             boxer  0.107166    Dog              images/dogs/tonks_beer.jpg
+```

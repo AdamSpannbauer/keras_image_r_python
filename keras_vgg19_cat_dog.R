@@ -68,12 +68,54 @@ pred_df = pred_df[order(-pred_df$score),]
 #####################
 print(pred_df)
 
-#   class_description     score catdog                                  file_name
-# 7         Chihuahua 0.9420919    Dog        images/dogs/tonks_proposal_sign.jpg
-# 6         Chihuahua 0.7851309    Dog images/dogs/tonks_jasper_announce_sign.jpg
-# 5          malinois 0.5802087    Dog        images/dogs/tonks_announce_sign.jpg
-# 2             tabby 0.4777499    Cat           images/cats/google_tabby_cat.jpg
-# 1      Egyptian_cat 0.4494216    Cat            images/cats/goober_lounging.jpg
-# 3    Scotch_terrier 0.3038349    Dog       images/cats/jasper_announce_sign.jpg
-# 4              lynx 0.1475925    Cat                images/cats/lilly_perch.jpg
+#   class_description     score catdog                              file_name
+# 6         Chihuahua 0.7779192    Dog     images/dogs/tonks_scary_sneeze.png
+# 3             tabby 0.4777499    Cat       images/cats/google_tabby_cat.jpg
+# 2      Egyptian_cat 0.4494216    Cat        images/cats/goober_lounging.jpg
+# 1              chow 0.2780781    Dog images/ambiguous/tonks_jasper_bone.jpg
+# 4              lynx 0.1475925    Cat            images/cats/lilly_perch.jpg
+# 5             boxer 0.1071659    Dog             images/dogs/tonks_beer.jpg
+#------------------------------------------------
+
+#####################
+# write labels on images and save to file
+# this part is not included in the mirrored python script but 
+# can be accomplished with packages such as opencv (see: https://www.pyimagesearch.com/2016/08/10/imagenet-classification-with-python-and-keras/)
+# or with PIL (see: https://stackoverflow.com/questions/16373425/add-text-on-image-using-pil)
+#####################
+
+#helper function to write labels on images
+write_class_results = function(file_path_in, file_path_out, label, score) {
+  #get file ext
+  out_ext = tolower(tools::file_ext(file_path_out))
+  
+  #read image
+  img = magick::image_read(file_path_in)
+  
+  #resize
+  img = magick::image_resize(img, magick::geometry_size_pixels(400, 400))
+  #write label: score in top left
+  img = magick::image_annotate(img, sprintf('%s: %.4f', label, score),
+                               size = 20, color = '#00ff00')
+  
+  #write out
+  magick::image_write(img, path = file_path_out, format = out_ext)
+}
+
+for (i in 1:nrow(pred_df)) {
+  #print status
+  cat('writing', i, 'of', nrow(pred_df), '\n')
+  
+  #get data for ith row
+  row_i = pred_df[i, ]
+  
+  #create out file name in results dir
+  out_file_name = paste0('results/', basename(row_i$file_name))
+
+  #call write func
+  write_class_results(file_path_in = row_i$file_name, 
+                      file_path_out = out_file_name,
+                      label = row_i$catdog, 
+                      score = row_i$score)
+}
 #------------------------------------------------
