@@ -1,5 +1,7 @@
 # Image Classification with Keras - R & Python
 
+###### (readme is copy/paste of [associated blog post](https://adamspannbauer.github.io/2018/02/14/image-classification-r-and-python/))
+
 This post is a comparison between R & Python for applying the [pretrained imagenet VGG19 model](https://keras.io/applications/#vgg19) shipped with [`keras`](https://keras.io/).
 
 ------------------------------------------------------------------------
